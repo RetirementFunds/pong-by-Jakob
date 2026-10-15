@@ -1,0 +1,16 @@
+@charset "UTF-8";
+
+canvas{
+    border:1px solid black;
+}
+
+.moveoverjerk{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.score{
+  display: flex;      
+  gap: 1000px;           
+}
