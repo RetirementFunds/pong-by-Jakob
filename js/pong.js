@@ -6,28 +6,12 @@ let ctx = c.getContext(`2d`)
 var p1Name = prompt("Player 1's Name:");
 var p2Name = prompt("Player 2's Name:");
 
-var p1Score = 0;
-var p2Score = 0;
-document.getElementById("p1score").textContent = p1Name + ": " + p1Score;
-document.getElementById("p2score").textContent = p2Name + ": " + p2Score;
 
 // Timer to make the game run at 60fps
 let timer = setInterval(main, 1000/60)
 
 // Global friction variable
 let fy = .97
-
-// Player 1 (p1) setup
-let p1 = new Box();
-p1.w = 20
-p1.h = 150
-p1.x = 0 + p1.w/2
-
-// Player 2 (p2) setup
-let p2 = new Box2();
-p2.w = 20
-p2.h = 150
-p2.x = c.width - p2.w/2
 
 // Ball setup
 let ball = new Box();
@@ -37,61 +21,92 @@ ball.vx = -2
 ball.vy = -2
 ball.color = `black`
 
+// Player setup
+let players = [];
+players[0] = new Player();
+players[1] = new Player();
+players[0].pad = new Box();
+players[1].pad = new Box();
+console.log(players)
+
+// Paddle setup
+let pads = [];
+pads[0] = players[0].pad;
+pads[1] = players[1].pad;
+
+pads[0].w = 20
+pads[0].h = 150
+pads[0].x = 0 + pads[0].w/2
+pads[1].w = 20
+pads[1].h = 150
+pads[1].x = c.width - pads[1].w/2
+pads[1].color = `limegreen`
+
+//Setup for score
+let score = [0,0]
+
+function updateScore() {
+    document.querySelector("#p1score").textContent = `${p1Name}: ${score[0]}`;
+    document.querySelector("#p2score").textContent = `${p2Name}: ${score[1]}`;
+}
+
+updateScore();
+
 function main()
 {
     // Erases the canvas
     ctx.clearRect(0,0,c.width,c.height)
     
-    // p1 accelerates when key is pressed 
+    // Player 1 accelerates when key is pressed 
     if(keys[`w`])
     {
-       p1.vy += -p1.force
+       pads[0].vy += -pads[0].force
     }
 
     if(keys[`s`])
     {
-        p1.vy += p1.force
+        pads[0].vy += pads[0].force
     }
 
-    //p2 accelerates when key is pressed
+    // Player 2 accelerates when key is pressed
     if(keys[`i`])
     {
-       p2.vy += -p2.force
+       pads[1].vy += -pads[1].force
     }
 
     if(keys[`k`])
     {
-        p2.vy += p2.force
+        pads[1].vy += pads[1].force
     }
 
 
     // Applies friction
-    p1.vy *= fy
-    p2.vy *= fy
+    pads[0].vy *= fy
+    pads[1].vy *= fy
     // Player movement
-    p1.move();
-    p2.move();
+    pads[0].move();
+    pads[1].move();
     // Ball movement
     ball.move()
 
-    // p1 collision
-    if (p1.y < 0+p1.h/2)
+    // Player 1 boundary collision
+    if (pads[0].y < 0+pads[0].h/2)
     {
-        p1.y = 0+p1.h/2
+        pads[0].y = 0+pads[0].h/2
     }
-    if (p1.y > c.height-p1.h/2)
+    if (pads[0].y > c.height-pads[0].h/2)
     {
-        p1.y = c.height-p1.h/2
+        pads[0].y = c.height-pads[0].h/2
     }
 
-    // p2 collision
-    if (p2.y < 0+p2.h/2)
+    // Player 2 boundary collision
+    if (pads[1].y < 0+pads[1].h/2)
     {
-        p2.y = 0+p2.h/2
+        pads[1].y = 0+pads[1].h/2
     }
-    if (p2.y > c.height-p2.h/2)
+    if (pads[1].y > c.height-pads[1].h/2)
     {
-        p2.y = c.height-p2.h/2
+        pads[1].y = c.height-pads[1].h/2
     }
 
     // Ball collision 
@@ -99,15 +114,15 @@ function main()
     {
         ball.x = c.width/2
         ball.y = c.height/2
-        p2Score++
-        document.getElementById("p2score").textContent = p2Name + ": " + p2Score;
+        score[1] += 1
+        updateScore();
     }
     if (ball.x > c.width)
     {
         ball.x = c.width/2
         ball.y = c.height/2
-        p1Score++
-        document.getElementById("p1score").textContent = p1Name + ": " + p1Score;
+        score[0] += 1
+        updateScore();
     }
     if (ball.y < 0)
     {
@@ -121,39 +136,23 @@ function main()
     }
 
 
-    // p1 with ball collision
-    if (ball.collide(p1))
+    // Player 1 with ball collision
+    if (ball.collide(pads[0]))
     {
-        ball.x = p1.x + p1.w/2 + ball.w/2
+        ball.x = pads[0].x + pads[0].w/2 + ball.w/2
         ball.vx = -ball.vx;
     }
 
-    // p2 with ball collision
-    if (ball.collide(p2))
+    // Player 2 with ball collision
+    if (ball.collide(pads[1]))
     {
-        ball.x = p2.x - p2.w/2 - ball.w/2
+        ball.x = pads[1].x - pads[1].w/2 - ball.w/2
         ball.vx = -ball.vx;
     }
 
     // Draw the objects
-    p1.draw()
-    p2.draw()
+    pads[0].draw()
+    pads[1].draw()
     ball.draw()
-
-    //Reset game
-    if (p1Score >= 10){
-        alert(p1Name + " Wins!")
-        p1Score = 0;
-        p2Score = 0;
-        document.getElementById("p1score").textContent = p1Name + ": " + p1Score;
-        document.getElementById("p2score").textContent = p2Name + ": " + p2Score;
-    }
-    if (p2Score >= 10){
-        alert(p2Name + " Wins!")
-        p1Score = 0;
-        p2Score = 0;
-        document.getElementById("p1score").textContent = p1Name + ": " + p1Score;
-        document.getElementById("p2score").textContent = p2Name + ": " + p2Score;
-    }
 
 }
