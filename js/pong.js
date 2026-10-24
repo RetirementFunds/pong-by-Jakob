@@ -1,6 +1,7 @@
 // Canvas and context
 let c = document.querySelector(`#pong`)
 let ctx = c.getContext(`2d`)
+let scoreDivs = document.querySelectorAll(`#score div`)
 
 // Chooses player names
 var p1Name = prompt("Player 1's Name:");
@@ -44,13 +45,6 @@ pads[1].color = `limegreen`
 
 //Setup for score
 let score = [0,0]
-
-function updateScore() {
-    document.querySelector("#p1score").textContent = `${p1Name}: ${score[0]}`;
-    document.querySelector("#p2score").textContent = `${p2Name}: ${score[1]}`;
-}
-
-updateScore();
 
 function main()
 {
@@ -115,14 +109,12 @@ function main()
         ball.x = c.width/2
         ball.y = c.height/2
         score[1] += 1
-        updateScore();
     }
     if (ball.x > c.width)
     {
         ball.x = c.width/2
         ball.y = c.height/2
         score[0] += 1
-        updateScore();
     }
     if (ball.y < 0)
     {
@@ -155,4 +147,8 @@ function main()
     pads[1].draw()
     ball.draw()
 
+    for (let i = 0; i < scoreDivs.length; i++)
+    {
+        scoreDivs[i].innerText = `${i === 0 ? p1Name : p2Name}: ${score[i]}`
+    }
 }
